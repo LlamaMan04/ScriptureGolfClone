@@ -16,6 +16,7 @@ class GameViewModel(
     private val repository: ScriptureRepository
 ) : ViewModel() {
     private var loadedBooks = emptyList<ScriptureBook>()
+    val works get() = repository.works
     val books: List<ScriptureBook>
         get() = loadedBooks
 
@@ -25,12 +26,50 @@ class GameViewModel(
     private var currentVerse: ScriptureVerse? = null
     private var incorrectGuesses = 0
     private var roundNumber = 1
+    private var selectedWorkIds = repository.works.map { it.id }.toSet()
+    private var roundLength = 10
+    private var sessionRound = 0
 
     init {
+        loadHome()
+    }
+
+    fun toggleWork(workId: String) {
+        val state = _uiState.value as? GameUiState.Home ?: return
+        val updated = if (workId in state.selectedWorkIds) state.selectedWorkIds - workId
+        else state.selectedWorkIds + workId
+        selectedWorkIds = updated
+        _uiState.value = state.copy(selectedWorkIds = updated)
+    }
+
+    fun toggleAllWorks() {
+        val state = _uiState.value as? GameUiState.Home ?: return
+        val updated = if (state.selectedWorkIds.size == state.works.size) emptySet() else state.works.map { it.id }.toSet()
+        selectedWorkIds = updated
+        _uiState.value = state.copy(selectedWorkIds = updated)
+    }
+
+    fun setRoundLength(length: Int) {
+        val state = _uiState.value as? GameUiState.Home ?: return
+        roundLength = length
+        _uiState.value = state.copy(roundLength = length)
+    }
+
+    fun startConfiguredRound() {
+        val state = _uiState.value as? GameUiState.Home ?: return
+        if (state.selectedWorkIds.isEmpty()) return
+        selectedWorkIds = state.selectedWorkIds
+        roundLength = state.roundLength
+        roundNumber = 1
+        sessionRound = 1
         startRound()
     }
 
     fun selectBook(bookId: String) {
+        if (_uiState.value is GameUiState.Home) {
+            sessionRound = 1
+            startRound()
+        }
         val state = _uiState.value as? GameUiState.GuessingBook ?: return
         _uiState.value = state.copy(selectedBookId = bookId)
     }
@@ -76,6 +115,11 @@ class GameViewModel(
     }
 
     fun nextRound() {
+        if (sessionRound >= roundLength) {
+            loadHome()
+            return
+        }
+        sessionRound++
         roundNumber++
         startRound()
     }
@@ -88,13 +132,22 @@ class GameViewModel(
     private fun startRound() {
         try {
             loadedBooks = repository.books
-            val verse = repository.randomVerse(currentVerse)
+            val verse = repository.randomVerse(selectedWorkIds, currentVerse)
             currentVerse = verse
             incorrectGuesses = 0
             _uiState.value = GameUiState.GuessingBook(
                 verse = verse,
                 roundNumber = roundNumber
             )
+        } catch (exception: ScriptureCatalogException) {
+            _uiState.value = GameUiState.Error(exception.message ?: "Unable to load the scripture catalog.")
+        }
+    }
+
+    private fun loadHome() {
+        try {
+            loadedBooks = repository.books
+            _uiState.value = GameUiState.Home(repository.works, selectedWorkIds, roundLength)
         } catch (exception: ScriptureCatalogException) {
             _uiState.value = GameUiState.Error(exception.message ?: "Unable to load the scripture catalog.")
         }

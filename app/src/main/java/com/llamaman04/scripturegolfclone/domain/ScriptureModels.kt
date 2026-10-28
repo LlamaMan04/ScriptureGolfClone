@@ -8,6 +8,12 @@ data class ScriptureCatalogIndex(val version: Int, val works: List<ScriptureWork
 @Serializable
 data class ScriptureWork(val id: String, val displayName: String, val books: List<ScriptureBookIndex>)
 
+data class ScriptureWorkOption(
+    val id: String,
+    val displayName: String,
+    val bookCount: Int
+)
+
 @Serializable
 data class ScriptureBookIndex(
     val id: String,
@@ -51,6 +57,11 @@ data class RoundResult(val verse: ScriptureVerse, val incorrectGuesses: Int)
 
 sealed interface GameUiState {
     data object Loading : GameUiState
+    data class Home(
+        val works: List<ScriptureWorkOption>,
+        val selectedWorkIds: Set<String> = works.map { it.id }.toSet(),
+        val roundLength: Int = 10
+    ) : GameUiState
     data class GuessingBook(
         val verse: ScriptureVerse,
         val selectedBookId: String? = null,

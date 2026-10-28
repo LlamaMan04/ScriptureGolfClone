@@ -38,6 +38,14 @@ import com.llamaman04.scripturegolfclone.domain.ScriptureBook
 fun GameScreen(viewModel: GameViewModel, modifier: Modifier = Modifier) {
     when (val state = viewModel.uiState.collectAsState().value) {
         GameUiState.Loading -> Text("Loading…", modifier = modifier.padding(24.dp))
+        is GameUiState.Home -> HomeScreen(
+            state = state,
+            onToggleWork = viewModel::toggleWork,
+            onSelectAllWorks = viewModel::toggleAllWorks,
+            onRoundLengthSelected = viewModel::setRoundLength,
+            onStartRound = viewModel::startConfiguredRound,
+            modifier = modifier
+        )
         is GameUiState.GuessingBook -> BookGuessScreen(
             state = state,
             books = viewModel.books,

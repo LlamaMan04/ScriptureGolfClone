@@ -6,12 +6,19 @@ import com.llamaman04.scripturegolfclone.domain.ScriptureBookIndex
 import com.llamaman04.scripturegolfclone.domain.ScriptureCatalogIndex
 import com.llamaman04.scripturegolfclone.domain.ScriptureVerse
 import com.llamaman04.scripturegolfclone.domain.ScriptureWork
+import com.llamaman04.scripturegolfclone.domain.ScriptureWorkOption
 import kotlin.random.Random
 
 interface ScriptureRepository {
     val books: List<ScriptureBook>
+    val works: List<ScriptureWorkOption>
+        get() = books.groupBy { it.work }.map { (work, workBooks) ->
+            ScriptureWorkOption(work.lowercase().replace(" ", "-"), work, workBooks.size)
+        }
     fun chaptersForBook(bookId: String): List<Int>
     fun randomVerse(previous: ScriptureVerse? = null): ScriptureVerse
+    fun randomVerse(includedWorkIds: Set<String>, previous: ScriptureVerse? = null): ScriptureVerse =
+        randomVerse(previous)
 }
 
 class CatalogScriptureRepository(
@@ -41,6 +48,12 @@ class CatalogScriptureRepository(
         }
     }
 
+    override val works: List<ScriptureWorkOption> by lazy {
+        index.works.map { work ->
+            ScriptureWorkOption(work.id, work.displayName, work.books.size)
+        }
+    }
+
     override fun chaptersForBook(bookId: String): List<Int> = index.works.asSequence()
         .flatMap { it.books.asSequence() }
         .firstOrNull { it.id == bookId }
@@ -49,8 +62,14 @@ class CatalogScriptureRepository(
         .orEmpty()
 
     override fun randomVerse(previous: ScriptureVerse?): ScriptureVerse {
+        return randomVerse(works.map { it.id }.toSet(), previous)
+    }
+
+    override fun randomVerse(includedWorkIds: Set<String>, previous: ScriptureVerse?): ScriptureVerse {
+        val includedChapters = indexedChapters.filter { it.work.id in includedWorkIds }
+        require(includedChapters.isNotEmpty()) { "At least one scripture work must be selected." }
         repeat(4) {
-            val indexedChapter = selectIndexedChapter()
+            val indexedChapter = selectIndexedChapter(includedChapters)
             val content = loadBook(indexedChapter.work.id, indexedChapter.book.id)
             val chapter = content.chapters.first { it.number == indexedChapter.chapterNumber }
             val selectedVerse = chapter.verses[random.nextInt(chapter.verses.size)]
@@ -61,15 +80,15 @@ class CatalogScriptureRepository(
                 verse = selectedVerse.number,
                 text = selectedVerse.text
             )
-            if (verse != previous || indexedChapters.sumOf { it.verseCount } == 1) return verse
+            if (verse != previous || includedChapters.sumOf { it.verseCount } == 1) return verse
         }
-        return randomVerse(null)
+        return randomVerse(includedWorkIds, null)
     }
 
-    private fun selectIndexedChapter(): IndexedChapter {
-        val totalVerseCount = indexedChapters.sumOf { it.verseCount }
+    private fun selectIndexedChapter(chapters: List<IndexedChapter>): IndexedChapter {
+        val totalVerseCount = chapters.sumOf { it.verseCount }
         var selection = random.nextInt(totalVerseCount)
-        return indexedChapters.first { chapter ->
+        return chapters.first { chapter ->
             if (selection < chapter.verseCount) true else {
                 selection -= chapter.verseCount
                 false
