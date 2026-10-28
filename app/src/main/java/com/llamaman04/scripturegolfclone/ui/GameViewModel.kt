@@ -1,20 +1,23 @@
 package com.llamaman04.scripturegolfclone.ui
 
 import androidx.lifecycle.ViewModel
-import com.llamaman04.scripturegolfclone.data.InMemoryScriptureRepository
+import com.llamaman04.scripturegolfclone.data.ScriptureCatalogException
 import com.llamaman04.scripturegolfclone.data.ScriptureRepository
 import com.llamaman04.scripturegolfclone.domain.GameRules
 import com.llamaman04.scripturegolfclone.domain.GameUiState
 import com.llamaman04.scripturegolfclone.domain.RoundResult
+import com.llamaman04.scripturegolfclone.domain.ScriptureBook
 import com.llamaman04.scripturegolfclone.domain.ScriptureVerse
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 class GameViewModel(
-    private val repository: ScriptureRepository = InMemoryScriptureRepository()
+    private val repository: ScriptureRepository
 ) : ViewModel() {
-    val books = repository.books
+    private var loadedBooks = emptyList<ScriptureBook>()
+    val books: List<ScriptureBook>
+        get() = loadedBooks
 
     private val _uiState = MutableStateFlow<GameUiState>(GameUiState.Loading)
     val uiState: StateFlow<GameUiState> = _uiState.asStateFlow()
@@ -77,13 +80,23 @@ class GameViewModel(
         startRound()
     }
 
+    fun retryLoading() {
+        _uiState.value = GameUiState.Loading
+        startRound()
+    }
+
     private fun startRound() {
-        val verse = repository.randomVerse(currentVerse)
-        currentVerse = verse
-        incorrectGuesses = 0
-        _uiState.value = GameUiState.GuessingBook(
-            verse = verse,
-            roundNumber = roundNumber
-        )
+        try {
+            loadedBooks = repository.books
+            val verse = repository.randomVerse(currentVerse)
+            currentVerse = verse
+            incorrectGuesses = 0
+            _uiState.value = GameUiState.GuessingBook(
+                verse = verse,
+                roundNumber = roundNumber
+            )
+        } catch (exception: ScriptureCatalogException) {
+            _uiState.value = GameUiState.Error(exception.message ?: "Unable to load the scripture catalog.")
+        }
     }
 }

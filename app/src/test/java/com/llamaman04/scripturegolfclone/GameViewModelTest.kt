@@ -13,9 +13,11 @@ class GameViewModelTest {
     private val verse = ScriptureVerse("alma", "Alma", 37, 6, "Text")
     private val repository = object : ScriptureRepository {
         override val books = listOf(
-            ScriptureBook("mosiah", "Mosiah", 29),
-            ScriptureBook("alma", "Alma", 63)
+            ScriptureBook("mosiah", "Mosiah", 29, "Book of Mormon"),
+            ScriptureBook("alma", "Alma", 63, "Book of Mormon")
         )
+
+        override fun chaptersForBook(bookId: String) = emptyList<Int>()
 
         override fun randomVerse(previous: ScriptureVerse?) = verse
     }

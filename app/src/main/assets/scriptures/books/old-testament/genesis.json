@@ -1,0 +1,5 @@
+{
+  "workId": "old-testament",
+  "bookId": "genesis",
+  "chapters": [{ "number": 1, "verses": [{ "number": 1, "text": "In the beginning God created the heaven and the earth." }] }]
+}

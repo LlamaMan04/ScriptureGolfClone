@@ -55,6 +55,11 @@ fun GameScreen(viewModel: GameViewModel, modifier: Modifier = Modifier) {
             onNextRound = viewModel::nextRound,
             modifier = modifier
         )
+        is GameUiState.Error -> ErrorScreen(
+            message = state.message,
+            onRetry = viewModel::retryLoading,
+            modifier = modifier
+        )
     }
 }
 
@@ -178,5 +183,20 @@ private fun GuessLayout(
 private fun Feedback(feedback: String?) {
     if (feedback != null) {
         Text(feedback, color = MaterialTheme.colorScheme.primary)
+    }
+}
+
+@Composable
+private fun ErrorScreen(
+    message: String,
+    onRetry: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        Text("Unable to load Scripture Golf", style = MaterialTheme.typography.headlineSmall)
+        Text(message)
+        Button(onClick = onRetry) {
+            Text("Retry")
+        }
     }
 }

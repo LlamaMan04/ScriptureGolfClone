@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "works": [
+    { "id": "old-testament", "displayName": "Old Testament", "books": [
+      { "id": "genesis", "displayName": "Genesis", "chapterCount": 50, "chapters": [{ "number": 1, "verseCount": 1 }] }
+    ] },
+    { "id": "new-testament", "displayName": "New Testament", "books": [
+      { "id": "john", "displayName": "John", "chapterCount": 21, "chapters": [{ "number": 3, "verseCount": 1 }] }
+    ] },
+    { "id": "book-of-mormon", "displayName": "Book of Mormon", "books": [
+      { "id": "1-nephi", "displayName": "1 Nephi", "chapterCount": 22, "chapters": [{ "number": 1, "verseCount": 1 }] },
+      { "id": "mosiah", "displayName": "Mosiah", "chapterCount": 29, "chapters": [{ "number": 2, "verseCount": 1 }] },
+      { "id": "alma", "displayName": "Alma", "chapterCount": 63, "chapters": [{ "number": 37, "verseCount": 1 }] }
+    ] },
+    { "id": "doctrine-and-covenants", "displayName": "Doctrine and Covenants", "books": [
+      { "id": "doctrine-and-covenants", "displayName": "Doctrine and Covenants", "chapterCount": 138, "chapters": [{ "number": 1, "verseCount": 1 }] }
+    ] },
+    { "id": "pearl-of-great-price", "displayName": "Pearl of Great Price", "books": [
+      { "id": "moses", "displayName": "Moses", "chapterCount": 8, "chapters": [{ "number": 1, "verseCount": 1 }] }
+    ] }
+  ]
+}

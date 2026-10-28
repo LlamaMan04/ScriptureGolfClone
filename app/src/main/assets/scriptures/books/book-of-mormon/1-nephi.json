@@ -1,0 +1,5 @@
+{
+  "workId": "book-of-mormon",
+  "bookId": "1-nephi",
+  "chapters": [{ "number": 1, "verses": [{ "number": 1, "text": "I, Nephi, having been born of goodly parents, therefore I was taught somewhat in all the learning of my father." }] }]
+}
