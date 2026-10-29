@@ -229,7 +229,7 @@ private fun GuessLayout(
             }
         }
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text("Round $roundNumber")
+            Text("Verse: $roundNumber")
             Text("Score: $incorrectGuesses")
         }
         Card(modifier = Modifier.fillMaxWidth()) {
