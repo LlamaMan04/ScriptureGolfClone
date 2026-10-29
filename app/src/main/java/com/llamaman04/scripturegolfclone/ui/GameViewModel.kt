@@ -26,12 +26,16 @@ class GameViewModel(
     private var currentVerse: ScriptureVerse? = null
     private var incorrectGuesses = 0
     private var roundNumber = 1
-    private var selectedWorkIds = repository.works.map { it.id }.toSet()
+    private var selectedWorkIds = emptySet<String>()
     private var roundLength = 10
     private var sessionRound = 0
     private var sessionScore = 0
 
     init {
+        loadLanding()
+    }
+
+    fun openHome() {
         loadHome()
     }
 
@@ -68,9 +72,12 @@ class GameViewModel(
     }
 
     fun selectBook(bookId: String) {
-        if (_uiState.value is GameUiState.Home) {
+        if (_uiState.value is GameUiState.Home || _uiState.value is GameUiState.Landing) {
             sessionRound = 1
             sessionScore = 0
+            if (selectedWorkIds.isEmpty()) {
+                selectedWorkIds = repository.works.map { it.id }.toSet()
+            }
             startRound()
         }
         val state = _uiState.value as? GameUiState.GuessingBook ?: return
@@ -159,6 +166,18 @@ class GameViewModel(
         try {
             loadedBooks = repository.books
             _uiState.value = GameUiState.Home(repository.works, selectedWorkIds, roundLength)
+        } catch (exception: ScriptureCatalogException) {
+            _uiState.value = GameUiState.Error(exception.message ?: "Unable to load the scripture catalog.")
+        }
+    }
+
+    private fun loadLanding() {
+        try {
+            loadedBooks = repository.books
+            if (selectedWorkIds.isEmpty()) {
+                selectedWorkIds = repository.works.map { it.id }.toSet()
+            }
+            _uiState.value = GameUiState.Landing
         } catch (exception: ScriptureCatalogException) {
             _uiState.value = GameUiState.Error(exception.message ?: "Unable to load the scripture catalog.")
         }

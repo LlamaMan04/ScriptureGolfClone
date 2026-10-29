@@ -45,6 +45,10 @@ import com.llamaman04.scripturegolfclone.domain.ScriptureBook
 fun GameScreen(viewModel: GameViewModel, modifier: Modifier = Modifier) {
     when (val state = viewModel.uiState.collectAsState().value) {
         GameUiState.Loading -> Text("Loading…", modifier = modifier.padding(24.dp))
+        GameUiState.Landing -> LandingScreen(
+            onStart = viewModel::openHome,
+            modifier = modifier
+        )
         is GameUiState.Home -> HomeScreen(
             state = state,
             onToggleWork = viewModel::toggleWork,

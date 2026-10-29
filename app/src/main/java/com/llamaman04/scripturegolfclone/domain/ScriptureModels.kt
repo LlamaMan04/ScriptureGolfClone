@@ -57,6 +57,7 @@ data class RoundResult(val verse: ScriptureVerse, val incorrectGuesses: Int)
 
 sealed interface GameUiState {
     data object Loading : GameUiState
+    data object Landing : GameUiState
     data class Home(
         val works: List<ScriptureWorkOption>,
         val selectedWorkIds: Set<String> = works.map { it.id }.toSet(),

@@ -16,6 +16,29 @@ The first release should prioritize a simple, reliable single-player experience:
 
 The existing project is already configured as a Kotlin Jetpack Compose application. The implementation should grow from the current `MainActivity` and theme files rather than introducing XML-based screens unless a platform integration requires it.
 
+## 1.1 Current implementation status
+
+The core playable prototype is implemented. The repository currently includes:
+
+- Compose landing, home/configuration, gameplay, completion, and catalog-error screens.
+- ViewModel-backed work selection, round length selection, multi-verse rounds, exit handling, and catalog retry handling.
+- Sequential book-then-chapter guessing. Chapter guessing is unavailable until the book is correct, incorrect guesses increase the score, and the same verse remains active after an incorrect guess.
+- An offline asset-backed catalog with an index, per-book JSON files, lazy book loading, random verse selection, previous-verse avoidance, canonical book IDs, and catalog validation.
+- Accessibility semantics for the main selectors, inputs, controls, and navigation actions.
+- JVM tests covering game rules, ViewModel progression, catalog parsing, catalog validation, indexed metadata, and deterministic random selection.
+
+The prototype catalog currently contains one indexed chapter/verse for each of six books across five scripture works. It is sufficient for development, but it is not yet a complete release catalog.
+
+The following planned capabilities are not implemented yet:
+
+- DataStore-backed persistence for completed rounds, scores, streaks, and recent history.
+- A statistics/history screen and persistent user preferences.
+- Compose UI tests and an instrumentation smoke test.
+- A complete, licensing-verified scripture catalog and production content review.
+- Final offline-device, rotation/process-recreation, release-build, and accessibility verification.
+
+The latest local test attempt could not start because the Gradle wrapper cache lock at `C:\Users\Stormblessed\.gradle\wrapper\dists\gradle-9.6.0-bin\...zip.lck` was inaccessible. Test status should be confirmed after that local Gradle environment issue is cleared.
+
 ## 2. Recommended architecture
 
 Use a small MVVM-style architecture with a repository boundary:
@@ -62,6 +85,8 @@ Keep game rules independent of Android UI:
 - `GameStatsStore`: persists score, rounds played, streak, and recent results with Jetpack DataStore Preferences.
 
 Avoid coupling the ViewModel directly to JSON parsing or Android `Context` access.
+
+Implementation note: the repository and catalog data source are present and use `assets/scriptures/index.json` plus per-book JSON files. `GameStatsStore` and DataStore have not been added yet; the current score and round state live only in the ViewModel for the active process.
 
 ## 3. Screen and component layout
 
@@ -325,15 +350,18 @@ com.llamaman04.scripturegolfclone
 - Add Compose UI tests confirming the chapter control is disabled before the book is correct, then enabled afterward, along with feedback, completion, and next-round behavior.
 - Add an instrumentation test that launches the app and confirms a verse and guess controls are visible.
 
+Current coverage includes JVM tests for the domain rules, main ViewModel book/chapter progression, catalog parsing and validation, indexed metadata, and deterministic random selection. Compose UI and instrumentation coverage remains to be added.
+
 ## 9. Implementation milestones
 
-1. Replace the starter greeting with `GameScreen` and a hard-coded sample verse.
-2. Add domain models, game rules, and ViewModel state transitions.
-3. Add the bundled catalog and repository abstraction.
-4. Add book/chapter selection and result feedback.
-5. Add DataStore-backed round-score and statistics persistence.
-6. Add tests and accessibility polish.
-7. Expand and verify the scripture catalog, then perform offline and configuration-change testing.
+1. **Complete:** Replace the starter greeting with Compose landing, home/configuration, gameplay, completion, and error screens.
+2. **Complete:** Add domain models, game rules, ViewModel state transitions, multi-verse round length, and work selection.
+3. **Complete:** Add the bundled asset catalog, repository abstraction, lazy book loading, random selection, and catalog validation.
+4. **Complete:** Add book/chapter selection, sequential phase locking, incorrect-guess feedback, score display, exit confirmation, and next-round behavior.
+5. **Partially complete:** Add automated coverage for domain rules, ViewModel progression, parsing, validation, and repository selection. Compose UI tests and the instrumentation smoke test remain.
+6. **Remaining:** Add DataStore-backed completed-round statistics, best score/streak/history, and a statistics/settings surface if required for the first release.
+7. **Remaining:** Expand the catalog beyond the development sample, verify distribution rights/content accuracy, and validate catalog size.
+8. **Remaining:** Resolve the local Gradle wrapper-cache lock, run unit/UI/instrumentation tests, and perform release-build, offline, configuration-change/process-recreation, and accessibility checks.
 
 ## 10. Important risks and decisions
 
