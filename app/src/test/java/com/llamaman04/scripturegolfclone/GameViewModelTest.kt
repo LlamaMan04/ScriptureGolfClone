@@ -44,4 +44,18 @@ class GameViewModelTest {
         assertTrue(viewModel.uiState.value is GameUiState.RoundComplete)
         assertEquals(2, (viewModel.uiState.value as GameUiState.RoundComplete).result.incorrectGuesses)
     }
+
+    @Test
+    fun historyCanBeOpenedFromHomeAndClosed() {
+        val viewModel = GameViewModel(repository)
+
+        viewModel.openHome()
+        viewModel.openHistory()
+
+        val history = viewModel.uiState.value as GameUiState.History
+        assertTrue(history.stats.recentRounds.isEmpty())
+
+        viewModel.closeHistory()
+        assertTrue(viewModel.uiState.value is GameUiState.Home)
+    }
 }

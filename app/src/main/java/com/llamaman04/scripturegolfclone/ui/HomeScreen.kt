@@ -29,6 +29,7 @@ fun HomeScreen(
     onSelectAllWorks: () -> Unit,
     onRoundLengthSelected: (Int) -> Unit,
     onStartRound: () -> Unit,
+    onViewHistory: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val allSelected = state.selectedWorkIds.size == state.works.size
@@ -107,6 +108,13 @@ fun HomeScreen(
             modifier = Modifier.fillMaxWidth().semantics { contentDescription = "Start scripture golf round" }
         ) {
             Text("Start round")
+        }
+
+        OutlinedButton(
+            onClick = onViewHistory,
+            modifier = Modifier.fillMaxWidth().semantics { contentDescription = "View playing history" }
+        ) {
+            Text("View history")
         }
     }
 }

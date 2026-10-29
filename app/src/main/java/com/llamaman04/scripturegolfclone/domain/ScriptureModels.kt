@@ -55,6 +55,31 @@ data class ScriptureBook(
 
 data class RoundResult(val verse: ScriptureVerse, val incorrectGuesses: Int)
 
+data class GameSettings(
+    val selectedWorkIds: Set<String> = emptySet(),
+    val roundLength: Int = 10
+)
+
+@Serializable
+data class RoundHistoryEntry(
+    val bookId: String,
+    val bookName: String,
+    val chapter: Int,
+    val verse: Int,
+    val incorrectGuesses: Int,
+    val completedAtEpochMillis: Long
+)
+
+data class GameStats(
+    val settings: GameSettings = GameSettings(),
+    val completedRounds: Int = 0,
+    val totalIncorrectGuesses: Int = 0,
+    val bestRoundScore: Int? = null,
+    val currentStreak: Int = 0,
+    val bestStreak: Int = 0,
+    val recentRounds: List<RoundHistoryEntry> = emptyList()
+)
+
 sealed interface GameUiState {
     data object Loading : GameUiState
     data object Landing : GameUiState
@@ -63,6 +88,7 @@ sealed interface GameUiState {
         val selectedWorkIds: Set<String> = works.map { it.id }.toSet(),
         val roundLength: Int = 10
     ) : GameUiState
+    data class History(val stats: GameStats) : GameUiState
     data class GuessingBook(
         val verse: ScriptureVerse,
         val selectedBookId: String? = null,

@@ -11,6 +11,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.llamaman04.scripturegolfclone.data.AssetScriptureCatalogDataSource
 import com.llamaman04.scripturegolfclone.data.CatalogScriptureRepository
+import com.llamaman04.scripturegolfclone.data.DataStoreGameStatsStore
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
@@ -30,13 +31,16 @@ class MainActivity : ComponentActivity() {
                         AssetScriptureCatalogDataSource(context.applicationContext.assets)
                     )
                 }
+                val statsStore = remember(context.applicationContext) {
+                    DataStoreGameStatsStore(context.applicationContext)
+                }
                 Surface(
                     modifier = Modifier
                         .fillMaxSize()
                         .safeDrawingPadding(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    GameScreen(viewModel = viewModel(factory = GameViewModelFactory(repository)))
+                    GameScreen(viewModel = viewModel(factory = GameViewModelFactory(repository, statsStore)))
                 }
             }
         }

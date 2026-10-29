@@ -55,6 +55,12 @@ fun GameScreen(viewModel: GameViewModel, modifier: Modifier = Modifier) {
             onSelectAllWorks = viewModel::toggleAllWorks,
             onRoundLengthSelected = viewModel::setRoundLength,
             onStartRound = viewModel::startConfiguredRound,
+            onViewHistory = viewModel::openHistory,
+            modifier = modifier
+        )
+        is GameUiState.History -> HistoryScreen(
+            stats = state.stats,
+            onBack = viewModel::closeHistory,
             modifier = modifier
         )
         is GameUiState.GuessingBook -> BookGuessScreen(

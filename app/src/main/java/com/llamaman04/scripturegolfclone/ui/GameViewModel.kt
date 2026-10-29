@@ -1,19 +1,27 @@
 package com.llamaman04.scripturegolfclone.ui
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.llamaman04.scripturegolfclone.data.ScriptureCatalogException
 import com.llamaman04.scripturegolfclone.data.ScriptureRepository
+import com.llamaman04.scripturegolfclone.data.GameStatsStore
 import com.llamaman04.scripturegolfclone.domain.GameRules
+import com.llamaman04.scripturegolfclone.domain.GameSettings
+import com.llamaman04.scripturegolfclone.domain.GameStats
 import com.llamaman04.scripturegolfclone.domain.GameUiState
+import com.llamaman04.scripturegolfclone.domain.RoundHistoryEntry
 import com.llamaman04.scripturegolfclone.domain.RoundResult
 import com.llamaman04.scripturegolfclone.domain.ScriptureBook
 import com.llamaman04.scripturegolfclone.domain.ScriptureVerse
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 class GameViewModel(
-    private val repository: ScriptureRepository
+    private val repository: ScriptureRepository,
+    private val statsStore: GameStatsStore? = null,
+    private val clock: () -> Long = System::currentTimeMillis
 ) : ViewModel() {
     private var loadedBooks = emptyList<ScriptureBook>()
     val works get() = repository.works
@@ -30,34 +38,61 @@ class GameViewModel(
     private var roundLength = 10
     private var sessionRound = 0
     private var sessionScore = 0
+    private var hasUserChangedSettings = false
+    private var latestStats = GameStats()
 
     init {
         loadLanding()
+        statsStore?.let { store ->
+            viewModelScope.launch {
+                store.stats.collect { stats ->
+                    latestStats = stats
+                    if (_uiState.value is GameUiState.History) {
+                        _uiState.value = GameUiState.History(stats)
+                    }
+                    applySavedSettings(stats.settings)
+                }
+            }
+        }
     }
 
     fun openHome() {
         loadHome()
     }
 
+    fun openHistory() {
+        _uiState.value = GameUiState.History(latestStats)
+    }
+
+    fun closeHistory() {
+        loadHome()
+    }
+
     fun toggleWork(workId: String) {
         val state = _uiState.value as? GameUiState.Home ?: return
+        hasUserChangedSettings = true
         val updated = if (workId in state.selectedWorkIds) state.selectedWorkIds - workId
         else state.selectedWorkIds + workId
         selectedWorkIds = updated
         _uiState.value = state.copy(selectedWorkIds = updated)
+        saveSettings(updated, state.roundLength)
     }
 
     fun toggleAllWorks() {
         val state = _uiState.value as? GameUiState.Home ?: return
+        hasUserChangedSettings = true
         val updated = if (state.selectedWorkIds.size == state.works.size) emptySet() else state.works.map { it.id }.toSet()
         selectedWorkIds = updated
         _uiState.value = state.copy(selectedWorkIds = updated)
+        saveSettings(updated, state.roundLength)
     }
 
     fun setRoundLength(length: Int) {
         val state = _uiState.value as? GameUiState.Home ?: return
+        hasUserChangedSettings = true
         roundLength = length
         _uiState.value = state.copy(roundLength = length)
+        saveSettings(state.selectedWorkIds, length)
     }
 
     fun startConfiguredRound() {
@@ -112,6 +147,7 @@ class GameViewModel(
 
         if (GameRules.isChapterCorrect(verse, guessedChapter)) {
             sessionScore += incorrectGuesses
+            recordCompletedRound(verse, incorrectGuesses)
             _uiState.value = GameUiState.RoundComplete(
                 result = RoundResult(verse, incorrectGuesses),
                 roundNumber = roundNumber,
@@ -181,5 +217,53 @@ class GameViewModel(
         } catch (exception: ScriptureCatalogException) {
             _uiState.value = GameUiState.Error(exception.message ?: "Unable to load the scripture catalog.")
         }
+    }
+
+    private fun applySavedSettings(settings: GameSettings) {
+        val state = _uiState.value
+        if (hasUserChangedSettings || (state !is GameUiState.Landing && state !is GameUiState.Home)) return
+
+        val availableWorkIds = repository.works.map { it.id }.toSet()
+        val restoredWorkIds = settings.selectedWorkIds.intersect(availableWorkIds)
+            .ifEmpty { availableWorkIds }
+        val restoredRoundLength = settings.roundLength.takeIf { it in ROUND_LENGTH_OPTIONS }
+            ?: DEFAULT_ROUND_LENGTH
+
+        selectedWorkIds = restoredWorkIds
+        roundLength = restoredRoundLength
+        if (state is GameUiState.Home) {
+            _uiState.value = state.copy(
+                selectedWorkIds = restoredWorkIds,
+                roundLength = restoredRoundLength
+            )
+        }
+    }
+
+    private fun saveSettings(workIds: Set<String>, length: Int) {
+        statsStore ?: return
+        viewModelScope.launch {
+            statsStore.saveSettings(GameSettings(workIds, length))
+        }
+    }
+
+    private fun recordCompletedRound(verse: ScriptureVerse, score: Int) {
+        statsStore ?: return
+        viewModelScope.launch {
+            statsStore.recordCompletedRound(
+                RoundHistoryEntry(
+                    bookId = verse.bookId,
+                    bookName = verse.bookName,
+                    chapter = verse.chapter,
+                    verse = verse.verse,
+                    incorrectGuesses = score,
+                    completedAtEpochMillis = clock()
+                )
+            )
+        }
+    }
+
+    private companion object {
+        val ROUND_LENGTH_OPTIONS = setOf(1, 5, 10, 20)
+        const val DEFAULT_ROUND_LENGTH = 10
     }
 }
