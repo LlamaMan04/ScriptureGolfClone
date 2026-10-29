@@ -174,9 +174,10 @@ class GameViewModel(
             )
         } else {
             incorrectGuesses = GameRules.incrementIncorrectGuesses(incorrectGuesses)
+            val direction = if (guessedChapter < verse.chapter) "higher" else "lower"
             _uiState.value = state.copy(
                 incorrectGuesses = incorrectGuesses,
-                feedback = "Not quite. Try another chapter."
+                feedback = "Not quite. Try a $direction chapter."
             )
         }
     }

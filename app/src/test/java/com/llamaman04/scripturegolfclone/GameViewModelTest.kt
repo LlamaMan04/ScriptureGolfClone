@@ -40,6 +40,7 @@ class GameViewModelTest {
         viewModel.submitChapterGuess(36)
         val afterWrongChapter = viewModel.uiState.value as GameUiState.GuessingChapter
         assertEquals(2, afterWrongChapter.incorrectGuesses)
+        assertEquals("Not quite. Try a higher chapter.", afterWrongChapter.feedback)
 
         viewModel.submitChapterGuess(37)
         assertTrue(viewModel.uiState.value is GameUiState.RoundComplete)
@@ -58,6 +59,18 @@ class GameViewModelTest {
 
         viewModel.closeHistory()
         assertTrue(viewModel.uiState.value is GameUiState.Home)
+    }
+
+    @Test
+    fun chapterHintSuggestsLowerForAHighGuess() {
+        val viewModel = GameViewModel(repository)
+
+        viewModel.selectBook("alma")
+        viewModel.submitBookGuess()
+        viewModel.submitChapterGuess(38)
+
+        val state = viewModel.uiState.value as GameUiState.GuessingChapter
+        assertEquals("Not quite. Try a lower chapter.", state.feedback)
     }
 
     @Test
