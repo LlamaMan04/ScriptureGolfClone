@@ -185,7 +185,7 @@ class GameViewModel(
 
     private fun startRound() {
         try {
-            loadedBooks = repository.books
+            loadedBooks = booksForSelectedWorks()
             val verse = repository.randomVerse(selectedWorkIds, currentVerse)
             currentVerse = verse
             incorrectGuesses = 0
@@ -196,6 +196,14 @@ class GameViewModel(
         } catch (exception: ScriptureCatalogException) {
             _uiState.value = GameUiState.Error(exception.message ?: "Unable to load the scripture catalog.")
         }
+    }
+
+    private fun booksForSelectedWorks(): List<ScriptureBook> {
+        val selectedWorkNames = repository.works
+            .filter { it.id in selectedWorkIds }
+            .map { it.displayName }
+            .toSet()
+        return repository.books.filter { it.work in selectedWorkNames }
     }
 
     private fun loadHome() {

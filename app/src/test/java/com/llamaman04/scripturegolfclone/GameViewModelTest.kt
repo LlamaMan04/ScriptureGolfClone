@@ -14,7 +14,8 @@ class GameViewModelTest {
     private val repository = object : ScriptureRepository {
         override val books = listOf(
             ScriptureBook("mosiah", "Mosiah", 29, "Book of Mormon"),
-            ScriptureBook("alma", "Alma", 63, "Book of Mormon")
+            ScriptureBook("alma", "Alma", 63, "Book of Mormon"),
+            ScriptureBook("john", "John", 21, "New Testament")
         )
 
         override fun chaptersForBook(bookId: String) = emptyList<Int>()
@@ -57,5 +58,16 @@ class GameViewModelTest {
 
         viewModel.closeHistory()
         assertTrue(viewModel.uiState.value is GameUiState.Home)
+    }
+
+    @Test
+    fun bookDropdownOnlyUsesSelectedWorks() {
+        val viewModel = GameViewModel(repository)
+
+        viewModel.openHome()
+        viewModel.toggleWork("book-of-mormon")
+        viewModel.startConfiguredRound()
+
+        assertEquals(listOf("john"), viewModel.books.map { it.id })
     }
 }
