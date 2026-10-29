@@ -29,6 +29,7 @@ interface GameStatsStore {
 
     suspend fun saveSettings(settings: GameSettings)
     suspend fun recordCompletedRound(round: RoundHistoryEntry)
+    suspend fun clearHistory()
 }
 
 class DataStoreGameStatsStore internal constructor(
@@ -70,6 +71,17 @@ class DataStoreGameStatsStore internal constructor(
             if (best == null || round.incorrectGuesses < best) {
                 preferences[BEST_ROUND_SCORE] = round.incorrectGuesses
             }
+        }
+    }
+
+    override suspend fun clearHistory() {
+        dataStore.edit { preferences ->
+            preferences.remove(COMPLETED_ROUNDS)
+            preferences.remove(TOTAL_INCORRECT_GUESSES)
+            preferences.remove(BEST_ROUND_SCORE)
+            preferences.remove(CURRENT_STREAK)
+            preferences.remove(BEST_STREAK)
+            preferences.remove(RECENT_ROUNDS)
         }
     }
 

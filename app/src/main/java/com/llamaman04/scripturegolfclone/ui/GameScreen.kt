@@ -61,6 +61,7 @@ fun GameScreen(viewModel: GameViewModel, modifier: Modifier = Modifier) {
         is GameUiState.History -> HistoryScreen(
             stats = state.stats,
             onBack = viewModel::closeHistory,
+            onClearHistory = viewModel::clearHistory,
             modifier = modifier
         )
         is GameUiState.GuessingBook -> BookGuessScreen(

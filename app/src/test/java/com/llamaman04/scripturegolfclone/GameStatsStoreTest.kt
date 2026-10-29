@@ -66,4 +66,32 @@ class GameStatsStoreTest {
             file.delete()
         }
     }
+
+    @Test
+    fun clearHistoryRemovesRoundsButKeepsSettings() = runBlocking {
+        val file = File.createTempFile("scripture-golf-clear", ".preferences_pb")
+        file.delete()
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+        val store = DataStoreGameStatsStore(
+            PreferenceDataStoreFactory.create(scope = scope, produceFile = { file })
+        )
+
+        try {
+            store.saveSettings(GameSettings(setOf("book-of-mormon"), 20))
+            store.recordCompletedRound(RoundHistoryEntry("alma", "Alma", 37, 6, 1, 1234L))
+            store.clearHistory()
+
+            val stats = store.stats.first()
+            assertEquals(setOf("book-of-mormon"), stats.settings.selectedWorkIds)
+            assertEquals(20, stats.settings.roundLength)
+            assertEquals(0, stats.completedRounds)
+            assertEquals(0, stats.totalIncorrectGuesses)
+            assertNull(stats.bestRoundScore)
+            assertEquals(0, stats.bestStreak)
+            assertEquals(emptyList<Any>(), stats.recentRounds)
+        } finally {
+            scope.cancel()
+            file.delete()
+        }
+    }
 }

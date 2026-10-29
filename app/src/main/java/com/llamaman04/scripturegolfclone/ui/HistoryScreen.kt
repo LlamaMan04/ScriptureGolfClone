@@ -10,8 +10,15 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -24,8 +31,11 @@ import java.util.Date
 fun HistoryScreen(
     stats: GameStats,
     onBack: () -> Unit,
+    onClearHistory: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var showClearConfirmation by remember { mutableStateOf(false) }
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -61,9 +71,36 @@ fun HistoryScreen(
             stats.recentRounds.forEach { round -> HistoryEntry(round) }
         }
 
+        OutlinedButton(
+            onClick = { showClearConfirmation = true },
+            enabled = stats.completedRounds > 0 || stats.recentRounds.isNotEmpty(),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Clear history")
+        }
+
         Button(onClick = onBack, modifier = Modifier.fillMaxWidth()) {
             Text("Back to home")
         }
+    }
+
+    if (showClearConfirmation) {
+        AlertDialog(
+            onDismissRequest = { showClearConfirmation = false },
+            title = { Text("Clear playing history?") },
+            text = { Text("This removes all completed verses and score statistics. Your round settings will be kept.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showClearConfirmation = false
+                        onClearHistory()
+                    }
+                ) { Text("Clear") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showClearConfirmation = false }) { Text("Cancel") }
+            }
+        )
     }
 }
 

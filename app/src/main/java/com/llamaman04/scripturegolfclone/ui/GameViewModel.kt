@@ -68,6 +68,23 @@ class GameViewModel(
         loadHome()
     }
 
+    fun clearHistory() {
+        latestStats = latestStats.copy(
+            completedRounds = 0,
+            totalIncorrectGuesses = 0,
+            bestRoundScore = null,
+            currentStreak = 0,
+            bestStreak = 0,
+            recentRounds = emptyList()
+        )
+        if (_uiState.value is GameUiState.History) {
+            _uiState.value = GameUiState.History(latestStats)
+        }
+        statsStore?.let { store ->
+            viewModelScope.launch { store.clearHistory() }
+        }
+    }
+
     fun toggleWork(workId: String) {
         val state = _uiState.value as? GameUiState.Home ?: return
         hasUserChangedSettings = true
