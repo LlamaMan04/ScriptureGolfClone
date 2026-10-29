@@ -78,7 +78,10 @@ sealed interface GameUiState {
     ) : GameUiState
     data class RoundComplete(
         val result: RoundResult,
-        val roundNumber: Int
+        val roundNumber: Int,
+        val roundScore: Int = result.incorrectGuesses,
+        val roundLength: Int = 1,
+        val isRoundFinished: Boolean = true
     ) : GameUiState
     data class Error(
         val message: String

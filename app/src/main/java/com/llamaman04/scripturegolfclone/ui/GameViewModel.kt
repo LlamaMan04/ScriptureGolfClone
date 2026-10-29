@@ -29,6 +29,7 @@ class GameViewModel(
     private var selectedWorkIds = repository.works.map { it.id }.toSet()
     private var roundLength = 10
     private var sessionRound = 0
+    private var sessionScore = 0
 
     init {
         loadHome()
@@ -62,12 +63,14 @@ class GameViewModel(
         roundLength = state.roundLength
         roundNumber = 1
         sessionRound = 1
+        sessionScore = 0
         startRound()
     }
 
     fun selectBook(bookId: String) {
         if (_uiState.value is GameUiState.Home) {
             sessionRound = 1
+            sessionScore = 0
             startRound()
         }
         val state = _uiState.value as? GameUiState.GuessingBook ?: return
@@ -101,9 +104,13 @@ class GameViewModel(
         val verse = state.verse
 
         if (GameRules.isChapterCorrect(verse, guessedChapter)) {
+            sessionScore += incorrectGuesses
             _uiState.value = GameUiState.RoundComplete(
                 result = RoundResult(verse, incorrectGuesses),
-                roundNumber = roundNumber
+                roundNumber = roundNumber,
+                roundScore = sessionScore,
+                roundLength = roundLength,
+                isRoundFinished = sessionRound >= roundLength
             )
         } else {
             incorrectGuesses = GameRules.incrementIncorrectGuesses(incorrectGuesses)
@@ -122,6 +129,10 @@ class GameViewModel(
         sessionRound++
         roundNumber++
         startRound()
+    }
+
+    fun exitRound() {
+        loadHome()
     }
 
     fun retryLoading() {

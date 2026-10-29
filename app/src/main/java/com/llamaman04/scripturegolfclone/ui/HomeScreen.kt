@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -33,7 +34,10 @@ fun HomeScreen(
     val allSelected = state.selectedWorkIds.size == state.works.size
 
     Column(
-        modifier = modifier.verticalScroll(rememberScrollState()).padding(24.dp),
+        modifier = modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Text("Scripture Golf", style = MaterialTheme.typography.headlineMedium)
@@ -85,7 +89,7 @@ fun HomeScreen(
             Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text("Round length", style = MaterialTheme.typography.titleLarge)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    listOf(5, 10, 20).forEach { length ->
+                    listOf(1, 5, 10, 20).forEach { length ->
                         if (state.roundLength == length) {
                             Button(onClick = { onRoundLengthSelected(length) }) { Text("$length") }
                         } else {

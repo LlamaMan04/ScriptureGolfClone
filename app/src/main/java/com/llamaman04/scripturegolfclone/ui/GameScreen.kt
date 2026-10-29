@@ -12,13 +12,18 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -26,11 +31,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.llamaman04.scripturegolfclone.R
 import com.llamaman04.scripturegolfclone.domain.GameUiState
 import com.llamaman04.scripturegolfclone.domain.ScriptureBook
 
@@ -51,16 +58,19 @@ fun GameScreen(viewModel: GameViewModel, modifier: Modifier = Modifier) {
             books = viewModel.books,
             onBookSelected = viewModel::selectBook,
             onSubmit = viewModel::submitBookGuess,
+            onExitRound = viewModel::exitRound,
             modifier = modifier
         )
         is GameUiState.GuessingChapter -> ChapterGuessScreen(
             state = state,
             onSubmit = viewModel::submitChapterGuess,
+            onExitRound = viewModel::exitRound,
             modifier = modifier
         )
         is GameUiState.RoundComplete -> RoundCompleteScreen(
             state = state,
             onNextRound = viewModel::nextRound,
+            onHome = viewModel::exitRound,
             modifier = modifier
         )
         is GameUiState.Error -> ErrorScreen(
@@ -78,12 +88,20 @@ private fun BookGuessScreen(
     books: List<ScriptureBook>,
     onBookSelected: (String) -> Unit,
     onSubmit: () -> Unit,
+    onExitRound: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }
     val selectedBook = books.firstOrNull { it.id == state.selectedBookId }?.displayName.orEmpty()
 
-    GuessLayout(state.verse.text, state.incorrectGuesses, state.roundNumber, modifier) {
+    GuessLayout(
+        state.verse.text,
+        state.incorrectGuesses,
+        state.roundNumber,
+        onExitRound,
+        modifier,
+        confirmExit = true
+    ) {
         Text("Guess the book", style = MaterialTheme.typography.titleMedium)
         ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
             OutlinedTextField(
@@ -94,7 +112,7 @@ private fun BookGuessScreen(
                 placeholder = { Text("Select a book") },
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
                 modifier = Modifier
-                    .menuAnchor()
+                    .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
                     .fillMaxWidth()
                     .semantics { contentDescription = "Book selector" }
             )
@@ -121,12 +139,20 @@ private fun BookGuessScreen(
 private fun ChapterGuessScreen(
     state: GameUiState.GuessingChapter,
     onSubmit: (Int?) -> Unit,
+    onExitRound: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var chapterText by remember(state.verse) { mutableStateOf("") }
     val chapter = chapterText.toIntOrNull()
 
-    GuessLayout(state.verse.text, state.incorrectGuesses, state.roundNumber, modifier) {
+    GuessLayout(
+        state.verse.text,
+        state.incorrectGuesses,
+        state.roundNumber,
+        onExitRound,
+        modifier,
+        confirmExit = true
+    ) {
         Text("Guess the chapter", style = MaterialTheme.typography.titleMedium)
         OutlinedTextField(
             value = chapterText,
@@ -146,14 +172,22 @@ private fun ChapterGuessScreen(
 private fun RoundCompleteScreen(
     state: GameUiState.RoundComplete,
     onNextRound: () -> Unit,
+    onHome: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    GuessLayout(state.result.verse.text, state.result.incorrectGuesses, state.roundNumber, modifier) {
-        Text("Round complete!", style = MaterialTheme.typography.headlineSmall)
+    GuessLayout(state.result.verse.text, state.result.incorrectGuesses, state.roundNumber, onHome, modifier) {
+        Text("Well done!", style = MaterialTheme.typography.headlineSmall)
         Text("${state.result.verse.bookName} ${state.result.verse.chapter}:${state.result.verse.verse}")
-        Text("Your score: ${state.result.incorrectGuesses}")
-        Button(onClick = onNextRound, modifier = Modifier.fillMaxWidth()) {
-            Text("Next verse")
+        Text("Verses completed: ${state.roundNumber} of ${state.roundLength}")
+        Text("Round score: ${state.roundScore}")
+        if (state.isRoundFinished) {
+            Button(onClick = onHome, modifier = Modifier.fillMaxWidth()) {
+                Text("Return home")
+            }
+        } else {
+            Button(onClick = onNextRound, modifier = Modifier.fillMaxWidth()) {
+                Text("Next verse")
+            }
         }
     }
 }
@@ -163,14 +197,33 @@ private fun GuessLayout(
     verseText: String,
     incorrectGuesses: Int,
     roundNumber: Int,
+    onExitRound: (() -> Unit)?,
     modifier: Modifier = Modifier,
+    confirmExit: Boolean = false,
     content: @Composable () -> Unit
 ) {
+    var showExitConfirmation by remember { mutableStateOf(false) }
     Column(
         modifier = modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Text("Scripture Golf", style = MaterialTheme.typography.headlineMedium)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+        ) {
+            Text("Scripture Golf", style = MaterialTheme.typography.headlineMedium)
+            if (onExitRound != null) {
+                IconButton(
+                    onClick = {
+                        if (confirmExit) showExitConfirmation = true else onExitRound()
+                    },
+                    modifier = Modifier.semantics { contentDescription = "Return to home" }
+                ) {
+                    Icon(painterResource(R.drawable.ic_home), contentDescription = "Return to home")
+                }
+            }
+        }
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text("Round $roundNumber")
             Text("Score: $incorrectGuesses")
@@ -184,6 +237,19 @@ private fun GuessLayout(
         }
         content()
         Spacer(modifier = Modifier.height(8.dp))
+    }
+    if (showExitConfirmation && onExitRound != null) {
+        AlertDialog(
+            onDismissRequest = { showExitConfirmation = false },
+            title = { Text("Exit this round?") },
+            text = { Text("Your progress and score for this round will be lost.") },
+            confirmButton = {
+                TextButton(onClick = onExitRound) { Text("Exit") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showExitConfirmation = false }) { Text("Keep playing") }
+            }
+        )
     }
 }
 
@@ -200,7 +266,13 @@ private fun ErrorScreen(
     onRetry: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(modifier = modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(24.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
         Text("Unable to load Scripture Golf", style = MaterialTheme.typography.headlineSmall)
         Text(message)
         Button(onClick = onRetry) {
