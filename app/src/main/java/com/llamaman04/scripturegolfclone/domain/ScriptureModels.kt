@@ -94,14 +94,16 @@ sealed interface GameUiState {
         val selectedBookId: String? = null,
         val incorrectGuesses: Int = 0,
         val roundNumber: Int = 1,
-        val feedback: String? = null
+        val feedback: String? = null,
+        val incorrectBookGuesses: List<String> = emptyList()
     ) : GameUiState
     data class GuessingChapter(
         val verse: ScriptureVerse,
         val selectedChapter: Int? = null,
         val incorrectGuesses: Int,
         val roundNumber: Int,
-        val feedback: String? = null
+        val feedback: String? = null,
+        val incorrectChapterGuesses: List<Int> = emptyList()
     ) : GameUiState
     data class RoundComplete(
         val result: RoundResult,

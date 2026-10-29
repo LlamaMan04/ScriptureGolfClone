@@ -143,6 +143,12 @@ private fun BookGuessScreen(
             Text("Submit book")
         }
         Feedback(state.feedback)
+        GuessHistory(
+            label = "Previous book guesses",
+            guesses = state.incorrectBookGuesses.map { id ->
+                books.firstOrNull { it.id == id }?.displayName ?: id
+            }
+        )
     }
 }
 
@@ -176,6 +182,10 @@ private fun ChapterGuessScreen(
             Text("Submit chapter")
         }
         Feedback(state.feedback)
+        GuessHistory(
+            label = "Previous chapter guesses",
+            guesses = state.incorrectChapterGuesses.map(Int::toString)
+        )
     }
 }
 
@@ -268,6 +278,17 @@ private fun GuessLayout(
 private fun Feedback(feedback: String?) {
     if (feedback != null) {
         Text(feedback, color = MaterialTheme.colorScheme.primary)
+    }
+}
+
+@Composable
+private fun GuessHistory(label: String, guesses: List<String>) {
+    if (guesses.isNotEmpty()) {
+        Text(
+            "$label: ${guesses.joinToString(", ")}",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
 

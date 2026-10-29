@@ -98,7 +98,8 @@ fun HomeScreen(
                         }
                     }
                 }
-                Text("${state.roundLength} verses in this round")
+                val plural = if(state.roundLength > 1) "s" else ""
+                Text("${state.roundLength} verse${plural} in this round")
             }
         }
 

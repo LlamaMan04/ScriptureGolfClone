@@ -33,6 +33,8 @@ class GameViewModel(
 
     private var currentVerse: ScriptureVerse? = null
     private var incorrectGuesses = 0
+    private var incorrectBookGuesses = emptyList<String>()
+    private var incorrectChapterGuesses = emptyList<Int>()
     private var roundNumber = 1
     private var selectedWorkIds = emptySet<String>()
     private var roundLength = 10
@@ -150,9 +152,11 @@ class GameViewModel(
             )
         } else {
             incorrectGuesses = GameRules.incrementIncorrectGuesses(incorrectGuesses)
+            incorrectBookGuesses = incorrectBookGuesses + selectedBookId
             _uiState.value = state.copy(
                 incorrectGuesses = incorrectGuesses,
-                feedback = "Not quite. Try another book."
+                feedback = "Not quite. Try another book.",
+                incorrectBookGuesses = incorrectBookGuesses
             )
         }
     }
@@ -175,9 +179,11 @@ class GameViewModel(
         } else {
             incorrectGuesses = GameRules.incrementIncorrectGuesses(incorrectGuesses)
             val direction = if (guessedChapter < verse.chapter) "higher" else "lower"
+            incorrectChapterGuesses = incorrectChapterGuesses + guessedChapter
             _uiState.value = state.copy(
                 incorrectGuesses = incorrectGuesses,
-                feedback = "Not quite. Try a $direction chapter."
+                feedback = "Not quite. Try a $direction chapter.",
+                incorrectChapterGuesses = incorrectChapterGuesses
             )
         }
     }
@@ -207,6 +213,8 @@ class GameViewModel(
             val verse = repository.randomVerse(selectedWorkIds, currentVerse)
             currentVerse = verse
             incorrectGuesses = 0
+            incorrectBookGuesses = emptyList()
+            incorrectChapterGuesses = emptyList()
             _uiState.value = GameUiState.GuessingBook(
                 verse = verse,
                 roundNumber = roundNumber

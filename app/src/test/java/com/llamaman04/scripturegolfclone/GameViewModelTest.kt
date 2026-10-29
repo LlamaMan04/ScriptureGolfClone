@@ -32,6 +32,7 @@ class GameViewModelTest {
 
         val afterWrongBook = viewModel.uiState.value as GameUiState.GuessingBook
         assertEquals(1, afterWrongBook.incorrectGuesses)
+        assertEquals(listOf("mosiah"), afterWrongBook.incorrectBookGuesses)
 
         viewModel.selectBook("alma")
         viewModel.submitBookGuess()
@@ -40,6 +41,7 @@ class GameViewModelTest {
         viewModel.submitChapterGuess(36)
         val afterWrongChapter = viewModel.uiState.value as GameUiState.GuessingChapter
         assertEquals(2, afterWrongChapter.incorrectGuesses)
+        assertEquals(listOf(36), afterWrongChapter.incorrectChapterGuesses)
         assertEquals("Not quite. Try a higher chapter.", afterWrongChapter.feedback)
 
         viewModel.submitChapterGuess(37)
