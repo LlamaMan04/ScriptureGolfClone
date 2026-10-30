@@ -6305,7 +6305,7 @@
         {
           "id": "doctrine-and-covenants-1",
           "displayName": "Doctrine and Covenants Sections 1–20",
-          "chapterCount": 20.0,
+          "chapterCount": 20,
           "chapters": [
             {
               "number": 1,
@@ -6392,7 +6392,7 @@
         {
           "id": "doctrine-and-covenants-2",
           "displayName": "Doctrine and Covenants Sections 21–40",
-          "chapterCount": 40.0,
+          "chapterCount": 40,
           "chapters": [
             {
               "number": 21,
@@ -6479,7 +6479,7 @@
         {
           "id": "doctrine-and-covenants-3",
           "displayName": "Doctrine and Covenants Sections 41–60",
-          "chapterCount": 60.0,
+          "chapterCount": 60,
           "chapters": [
             {
               "number": 41,
@@ -6566,7 +6566,7 @@
         {
           "id": "doctrine-and-covenants-4",
           "displayName": "Doctrine and Covenants Sections 61–80",
-          "chapterCount": 80.0,
+          "chapterCount": 80,
           "chapters": [
             {
               "number": 61,
@@ -6653,7 +6653,7 @@
         {
           "id": "doctrine-and-covenants-5",
           "displayName": "Doctrine and Covenants Sections 81–100",
-          "chapterCount": 100.0,
+          "chapterCount": 100,
           "chapters": [
             {
               "number": 81,
@@ -6740,7 +6740,7 @@
         {
           "id": "doctrine-and-covenants-6",
           "displayName": "Doctrine and Covenants Sections 101–120",
-          "chapterCount": 120.0,
+          "chapterCount": 120,
           "chapters": [
             {
               "number": 101,
@@ -6827,7 +6827,7 @@
         {
           "id": "doctrine-and-covenants-7",
           "displayName": "Doctrine and Covenants Sections 121–138",
-          "chapterCount": 138.0,
+          "chapterCount": 138,
           "chapters": [
             {
               "number": 121,
