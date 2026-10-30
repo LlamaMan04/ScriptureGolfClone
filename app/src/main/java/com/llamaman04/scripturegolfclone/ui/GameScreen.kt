@@ -32,6 +32,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.foundation.text.KeyboardOptions
@@ -161,6 +162,7 @@ private fun ChapterGuessScreen(
 ) {
     var chapterText by remember(state.verse) { mutableStateOf("") }
     val chapter = chapterText.toIntOrNull()
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     GuessLayout(
         state.verse.text,
@@ -178,7 +180,15 @@ private fun ChapterGuessScreen(
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             modifier = Modifier.fillMaxWidth().semantics { contentDescription = "Chapter input" }
         )
-        Button(onClick = { onSubmit(chapter) }, enabled = chapter != null, modifier = Modifier.fillMaxWidth()) {
+        Button(
+            onClick = {
+                onSubmit(chapter)
+                chapterText = ""
+                keyboardController?.hide()
+            },
+            enabled = chapter != null,
+            modifier = Modifier.fillMaxWidth()
+        ) {
             Text("Submit chapter")
         }
         Feedback(state.feedback)
