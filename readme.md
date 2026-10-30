@@ -7,35 +7,27 @@ A clone of an LDS scripture guessing game formerly available for Android.
 Steps to build and/or run the software:
 
 1. Install the app (Currently only available by building the source code into a test app)
-2.
-3.
 
 Instructions for using the software:
 
-1. First step here
-2.
-3.
+1. Use the button navigation to play the game. Select your desired round options, then identify the book and chapter of each verse of scripture. 
 
 ## Development Environment
 
 To recreate the development environment, you need the following software and/or libraries with the specified versions:
 
-- First thing here
--
--
+- Android Studio Rabbit 1
 
 ## Useful Websites to Learn More
 
 I found these websites useful in developing this software:
 
-- [Website Title](Link)
--
--
+- [Jetpack Compose Documentation](https://developer.android.com/develop/ui/compose/documentation}
 
 ## Future Work
 
 The following items I plan to fix, improve, and/or add to this project in the future:
 
-- [ ] First thing here
-- [ ]
-- [ ]
+- [ ] Allow randomized verses from only a selected more common subset
+- [ ] Transition from current JSON file structure for storing verses to a Room database
+- [ ] Assorted UI improvements
