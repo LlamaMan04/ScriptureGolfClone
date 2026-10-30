@@ -173,6 +173,10 @@ private fun ChapterGuessScreen(
         confirmExit = true
     ) {
         Text("Guess the chapter", style = MaterialTheme.typography.titleMedium)
+        Text(
+            "Book: ${state.verse.bookName}",
+            style = MaterialTheme.typography.bodyLarge
+        )
         OutlinedTextField(
             value = chapterText,
             onValueChange = { chapterText = it.filter(Char::isDigit) },
@@ -208,7 +212,10 @@ private fun RoundCompleteScreen(
 ) {
     GuessLayout(state.result.verse.text, state.result.incorrectGuesses, state.roundNumber, onHome, modifier) {
         Text("Well done!", style = MaterialTheme.typography.headlineSmall)
-        Text("${state.result.verse.bookName} ${state.result.verse.chapter}:${state.result.verse.verse}")
+        var book = state.result.verse.bookName
+        if (book.startsWith("Doctrine")) 
+            book = "Doctrine and Covenants"
+        Text("${book} ${state.result.verse.chapter}:${state.result.verse.verse}")
         Text("Verses completed: ${state.roundNumber} of ${state.roundLength}")
         Text("Round score: ${state.roundScore}")
         if (state.isRoundFinished) {

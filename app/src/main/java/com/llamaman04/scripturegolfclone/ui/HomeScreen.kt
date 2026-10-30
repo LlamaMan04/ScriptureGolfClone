@@ -70,11 +70,6 @@ fun HomeScreen(
                         )
                         Column {
                             Text(work.displayName)
-                            Text(
-                                "${work.bookCount} ${if (work.bookCount == 1) "book" else "books"}",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
                         }
                     }
                 }
