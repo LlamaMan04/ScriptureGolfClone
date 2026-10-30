@@ -6303,9 +6303,9 @@
       "displayName": "Doctrine and Covenants",
       "books": [
         {
-          "id": "doctrine-and-covenants",
-          "displayName": "Doctrine and Covenants",
-          "chapterCount": 138,
+          "id": "doctrine-and-covenants-1",
+          "displayName": "Doctrine and Covenants Sections 1–20",
+          "chapterCount": 20.0,
           "chapters": [
             {
               "number": 1,
@@ -6386,7 +6386,14 @@
             {
               "number": 20,
               "verseCount": 84
-            },
+            }
+          ]
+        },
+        {
+          "id": "doctrine-and-covenants-2",
+          "displayName": "Doctrine and Covenants Sections 21–40",
+          "chapterCount": 40.0,
+          "chapters": [
             {
               "number": 21,
               "verseCount": 12
@@ -6466,7 +6473,14 @@
             {
               "number": 40,
               "verseCount": 3
-            },
+            }
+          ]
+        },
+        {
+          "id": "doctrine-and-covenants-3",
+          "displayName": "Doctrine and Covenants Sections 41–60",
+          "chapterCount": 60.0,
+          "chapters": [
             {
               "number": 41,
               "verseCount": 12
@@ -6546,7 +6560,14 @@
             {
               "number": 60,
               "verseCount": 17
-            },
+            }
+          ]
+        },
+        {
+          "id": "doctrine-and-covenants-4",
+          "displayName": "Doctrine and Covenants Sections 61–80",
+          "chapterCount": 80.0,
+          "chapters": [
             {
               "number": 61,
               "verseCount": 39
@@ -6626,7 +6647,14 @@
             {
               "number": 80,
               "verseCount": 5
-            },
+            }
+          ]
+        },
+        {
+          "id": "doctrine-and-covenants-5",
+          "displayName": "Doctrine and Covenants Sections 81–100",
+          "chapterCount": 100.0,
+          "chapters": [
             {
               "number": 81,
               "verseCount": 7
@@ -6706,7 +6734,14 @@
             {
               "number": 100,
               "verseCount": 17
-            },
+            }
+          ]
+        },
+        {
+          "id": "doctrine-and-covenants-6",
+          "displayName": "Doctrine and Covenants Sections 101–120",
+          "chapterCount": 120.0,
+          "chapters": [
             {
               "number": 101,
               "verseCount": 101
@@ -6786,7 +6821,14 @@
             {
               "number": 120,
               "verseCount": 1
-            },
+            }
+          ]
+        },
+        {
+          "id": "doctrine-and-covenants-7",
+          "displayName": "Doctrine and Covenants Sections 121–138",
+          "chapterCount": 138.0,
+          "chapters": [
             {
               "number": 121,
               "verseCount": 46
