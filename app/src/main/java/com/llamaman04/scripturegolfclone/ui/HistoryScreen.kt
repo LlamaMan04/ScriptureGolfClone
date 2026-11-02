@@ -119,8 +119,11 @@ private fun HistoryEntry(round: RoundHistoryEntry) {
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
+            var bookName = round.bookName
+            if (bookName.startsWith("Doctrine"))
+                bookName = "Doctrine and Covenants"
             Text(
-                "${round.bookName} ${round.chapter}:${round.verse}",
+                "$bookName ${round.chapter}:${round.verse}",
                 style = MaterialTheme.typography.titleMedium
             )
             Text("Incorrect guesses: ${round.incorrectGuesses}")
